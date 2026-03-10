@@ -1,74 +1,73 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Coderr Backend - ReadMe</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        h1, h2 {
-            color: #2c3e50;
-        }
-        code {
-            background-color: #eee;
-            padding: 2px 6px;
-            border-radius: 4px;
-        }
-        pre {
-            background-color: #eee;
-            padding: 10px;
-            border-radius: 4px;
-            overflow-x: auto;
-        }
-        ul {
-            margin-top: 0;
-        }
-    </style>
-</head>
-<body>
-    <h1>Coderr (Backend) - ReadMe</h1>
+<h1>Coderr Backend</h1>
 
-    <p>Mit <strong>Coderr</strong> erstellst du ein Backend für eine Freelancer-Entwickler-Plattform. Deine Frontend-Kollegen haben das Frontend schon auf die Beine gestellt. Deine Aufgabe ist es nun, die Plattform mit allen Funktionalitäten zum Laufen zu bekommen und Frontend und Backend zu verheiraten. Das Projekt lässt sich beliebig erweitern und anpassen.</p>
+<p>
+Coderr is a backend for a freelancer developer platform. This Django project provides a REST API
+to connect frontend and backend, managing all necessary functionalities for users, projects, and tasks.
+</p>
 
-    <h2>Versionen</h2>
-    <ul>
-        <li>asgiref==3.11.1</li>
-        <li>Django==6.0.3</li>
-        <li>djangorestframework==3.16.1</li>
-        <li>sqlparse==0.5.5</li>
-        <li>tzdata==2025.3</li>
-        <li>Python 3.14.2</li>
-    </ul>
+<h2>Features</h2>
+<ul>
+  <li>User registration and login</li>
+  <li>Create and manage freelancer profiles</li>
+  <li>Create, update, and delete projects</li>
+  <li>Assign freelancers to projects</li>
+  <li>RESTful API structure</li>
+</ul>
 
-    <h2>Installation</h2>
-    <p>Schritte, um das Projekt lokal zum Laufen zu bringen:</p>
-    <ol>
-        <li>Repository klonen:<br>
-            <pre><code>git clone https://github.com/Greedrache/Coderr</code></pre>
-        </li>
-        <li>Virtuelle Umgebung aktivieren:<br>
-            <pre><code>env dings</code></pre>
-        </li>
-        <li>Abhängigkeiten installieren:<br>
-            <pre><code>pip install -r requirements.txt</code></pre>
-        </li>
-        <li>Migrations erstellen und Datenbank migrieren:<br>
-            <pre><code>python manage.py makemigrations
-python manage.py migrate</code></pre>
-        </li>
-        <li>Server starten:<br>
-            <pre><code>python manage.py runserver</code></pre>
-        </li>
-    </ol>
+<h2>Tech Stack</h2>
+<ul>
+  <li>Python 3.14+</li>
+  <li>Django 6.0.3</li>
+  <li>Django REST Framework 3.16.1</li>
+  <li>SQLite (development) / other DBs as needed</li>
+</ul>
 
-    <h2>Hinweise</h2>
-    <p>Stelle sicher, dass du die <code>settings.py</code> entsprechend konfiguriert hast, insbesondere die Datenbankeinstellungen und die REST-Framework-Authentifizierung.</p>
+<h2>Setup (Local Development)</h2>
 
-    <p>Jetzt bist du bereit, mit <strong>Coderr</strong> zu arbeiten!</p>
-</body>
-</html>
+<h3>1. Clone the repository</h3>
+<pre><code>git clone https://github.com/Greedrache/Coderr .</code></pre>
+
+<h3>2. Create a virtual environment</h3>
+<pre><code>python -m venv venv</code></pre>
+
+<h3>3. Activate the virtual environment</h3>
+<p><strong>PowerShell:</strong></p>
+<pre><code>venv\Scripts\Activate.ps1</code></pre>
+
+<p><strong>cmd:</strong></p>
+<pre><code>venv\Scripts\activate</code></pre>
+
+<p><strong>Linux / Mac:</strong></p>
+<pre><code>source venv/bin/activate</code></pre>
+
+<h3>4. Install dependencies</h3>
+<pre><code>pip install -r requirements.txt</code></pre>
+
+<h3>5. Create migrations</h3>
+<pre><code>python manage.py makemigrations</code></pre>
+
+<h3>6. Apply migrations</h3>
+<pre><code>python manage.py migrate</code></pre>
+
+<h3>7. Start the development server</h3>
+<pre><code>python manage.py runserver</code></pre>
+
+<p>
+Server runs at:<br>
+http://127.0.0.1:8000/
+</p>
+
+<h2>Optional</h2>
+
+<p><strong>Create a superuser:</strong></p>
+<pre><code>python manage.py createsuperuser</code></pre>
+
+<p><strong>Deactivate the virtual environment:</strong></p>
+<pre><code>deactivate</code></pre>
+
+<h2>Troubleshooting</h2>
+<ul>
+  <li>If you have activation issues in PowerShell: <br>
+  <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code></li>
+  <li>If migrations are missing: run <code>python manage.py migrate</code></li>
+</ul>
