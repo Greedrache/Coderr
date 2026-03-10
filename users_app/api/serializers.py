@@ -3,9 +3,28 @@ from users_app.models import UserProfile
 from django.contrib.auth.models import User
 
 class UserProfileSerializer(serializers.ModelSerializer):
+
+    user = serializers.ReadOnlyField(source='user.id')
+
     class Meta:
         model = UserProfile
         fields = ['user', 'username', 'first_name', 'last_name', 'file', 'location', 'tel', 'description', 'working_hours', 'type', 'email', 'created_at']
+
+
+
+
+class BusinessProfileListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['user', 'username', 'first_name', 'last_name', 'file', 'location', 'tel', 'description', 'working_hours', 'type']
+
+class CustomerProfileListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['user', 'username', 'first_name', 'last_name', 'file', 'uploaded_at', 'type']
+
+
+
 
 
 class RegistrationSerializer(serializers.Serializer):
@@ -26,22 +45,28 @@ class RegistrationSerializer(serializers.Serializer):
         return data
     
     def validate_type(self, value):
-        if value not in ['regular', 'admin', 'buisness']:
-            raise serializers.ValidationError("Type must be either 'regular', 'admin', or 'buisness'.")
+        if value not in ['customer', 'admin', 'business']:
+            raise serializers.ValidationError("Type must be either 'customer', 'admin', or 'business'.")
         return value
 
     def save(self):
         username = self.validated_data['username']
         email = self.validated_data['email']
         password = self.validated_data['password']
-        type = self.validated_data.get('type', 'regular')
+        type = self.validated_data.get('type', 'customer')
         user = User(
             username=username,
             email=email
         )
         user.set_password(password)
         user.save()
-        if type == 'admin':
+
+        profile = user.userprofile
+        profile.type = type.lower()
+        profile.save()
+
+    
+        if type.lower() == 'admin':
             user.is_staff = True
             user.is_superuser = True
             user.save()

@@ -19,6 +19,7 @@ class UserProfile(models.Model):
     type = models.CharField(max_length=20, blank=True)  
     email = models.EmailField(blank=True)
     created_at = models.DateTimeField(default=timezone.now)
+    uploaded_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.user.username
@@ -32,5 +33,6 @@ def create_user_profile(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
-    instance.userprofile.save()
+    if hasattr(instance, 'userprofile'):
+        instance.userprofile.save()
 
