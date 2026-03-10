@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['user', 'bio', 'location']
+        fields = ['user', 'username', 'first_name', 'last_name', 'file', 'location', 'tel', 'description', 'working_hours', 'type', 'email', 'created_at']
 
 
 class RegistrationSerializer(serializers.Serializer):
@@ -46,3 +46,5 @@ class RegistrationSerializer(serializers.Serializer):
             user.is_superuser = True
             user.save()
         return user
+    
+
