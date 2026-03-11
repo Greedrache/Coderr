@@ -3,7 +3,11 @@ from content_app.models import BaseInfo, OfferDetail, Orders, Offers, Reviews
 
 
 class OfferDetailFullSerializer(serializers.ModelSerializer):
-    delivery_time_in_days = serializers.CharField(source='delivery_time', allow_blank=True, allow_null=True, required=False)
+    """
+    Serializer for the complete details of an offer, including all fields.
+    Primarily used for displaying offer details.
+    """
+    delivery_time_in_days = serializers.IntegerField(source='delivery_time', allow_null=True, required=False)
     revisions = serializers.IntegerField(source='revision', default=1, required=False)
     class Meta:
         model = OfferDetail
@@ -12,8 +16,13 @@ class OfferDetailFullSerializer(serializers.ModelSerializer):
 
     
 class OfferDetailSerializer(serializers.ModelSerializer): #for offerdeails/<id>/
+    """
+    Serializer for offer details, used for creating and updating offer details.
+    This serializer is designed to handle the input for offer details, allowing clients
+    to create or update offer details with the necessary fields. It includes validation and transformation of the input data to match the model's requirements.
+    """
     revisions = serializers.IntegerField(source='revision')
-    delivery_time_in_days = serializers.CharField(source='delivery_time', allow_null=True, allow_blank=True)
+    delivery_time_in_days = serializers.IntegerField(source='delivery_time', allow_null=True)
 
     class Meta:
         model = OfferDetail
@@ -22,6 +31,11 @@ class OfferDetailSerializer(serializers.ModelSerializer): #for offerdeails/<id>/
 
 
 class OfferSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Offers model, including nested offer details and user information.
+    This serializer is used for both listing and creating offers. It includes nested serialization for offer details and
+    user information, as well as custom create and update methods to handle the nested data appropriately.
+    """
     details = OfferDetailFullSerializer(many=True)
     user_details = serializers.SerializerMethodField()
     min_price = serializers.DecimalField(source='price', max_digits=10, decimal_places=2 , read_only=True)
@@ -98,13 +112,13 @@ class OfferSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
       details_data = validated_data.pop('details', None)
 
-    # Update Hauptfelder
+    # Update Main Offer fields
       for attr, value in validated_data.items():
         setattr(instance, attr, value)
       instance.save()
 
       if details_data is not None:
-        # Alte Details löschen (oder optional nur anpassen)
+        # All existing details delete and new details createn
         instance.details.all().delete()
         for detail in details_data:
             OfferDetail.objects.create(
@@ -135,6 +149,11 @@ class OfferSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Orders model, including custom fields for offer details and user information.
+    This serializer is used for creating and retrieving orders. It includes custom fields to handle the offer 
+    details and user information, as well as a custom create method to handle the creation of orders based on the provided offer details.
+    """
     offer_detail_id = serializers.IntegerField(write_only=True)
     customer_user = serializers.SerializerMethodField(read_only=True)
     business_user = serializers.SerializerMethodField(read_only=True)
@@ -200,6 +219,11 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the Reviews model, including custom fields for reviewer information.
+    This serializer is used for creating and retrieving reviews. It includes a custom field to handle the reviewer information,
+    as well as a custom create method to handle the creation of reviews based on the authenticated user.
+    """
     reviewer = serializers.PrimaryKeyRelatedField(read_only=True)
     
     class Meta:
@@ -214,6 +238,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class BaseInfoSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the BaseInfo model, used to represent aggregated information about reviews, business profiles, and offers.
+    This serializer is used for retrieving aggregated data such as the total number of reviews, average rating
+    """
     class Meta:
         model = BaseInfo
         fields = ['review_count', 'average_rating', 'business_profile_count', 'offer_count']

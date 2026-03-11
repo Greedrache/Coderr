@@ -11,11 +11,19 @@ from rest_framework import permissions
 
 
 class UserProfileList(generics.ListCreateAPIView):
+    """
+    View for listing and creating user profiles. This view allows users to retrieve a list of all user profiles and create new user profiles.
+    The list of user profiles is ordered by creation date in descending order. When creating a new user profile, the user field is automatically set to the authenticated user's ID.
+    """
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
 
 
 class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
+    """
+    View for retrieving, updating, and deleting a specific user profile. This view allows users to retrieve the details of a specific user profile,
+    update the user profile if they are the owner, and delete the user profile if they are the owner.
+    """
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
 
@@ -28,6 +36,10 @@ class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
         return self.request.user.userprofile
 
 class CustomLoginView(ObtainAuthToken):
+    """
+    View for user login. This view allows users to log in by providing their username and password. The view validates
+    the credentials and returns an authentication token if the credentials are valid. If the credentials are invalid, it returns an error response.   
+    """
     permission_classes = [AllowAny] 
 
     def post(self, request):
@@ -56,6 +68,11 @@ class CustomLoginView(ObtainAuthToken):
 
 
 class RegistrationView(APIView):
+    """
+    View for user registration. This view allows users to register by providing their username, email, password, repeated password, and user type.
+    The view validates the provided data, creates a new user and associated user profile, and returns an authentication token if the registration is successful. 
+    If the registration fails due to validation errors, it returns an error response with the details of the validation errors.
+    """
     permission_classes = [AllowAny]  
 
     def post(self, request):
@@ -77,9 +94,15 @@ class RegistrationView(APIView):
 
 
 class BusinessProfileList(generics.ListAPIView):
+    """
+    View for listing business profiles. This view allows users to retrieve a list of all business profiles.
+    """
     queryset = UserProfile.objects.filter(type='business')
     serializer_class = BusinessProfileListSerializer
 
 class CustomerProfileList(generics.ListAPIView):
+    """
+    View for listing customer profiles. This view allows users to retrieve a list of all customer profiles.
+    """
     queryset = UserProfile.objects.filter(type='customer')
     serializer_class = CustomerProfileListSerializer

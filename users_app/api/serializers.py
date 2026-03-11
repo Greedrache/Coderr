@@ -14,11 +14,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class BusinessProfileListSerializer(serializers.ModelSerializer):
+    """
+    Serializer for listing business profiles. This serializer is used to retrieve a list of business profiles with their basic information.
+    It includes fields such as username, first name, last name, file, location, telephone number, description, working hours, type, email, and creation date.
+    """
     class Meta:
         model = UserProfile
         fields = ['user', 'username', 'first_name', 'last_name', 'file', 'location', 'tel', 'description', 'working_hours', 'type']
 
 class CustomerProfileListSerializer(serializers.ModelSerializer):
+    """
+    Serializer for listing customer profiles. This serializer is used to retrieve a list of customer profiles with their basic information.
+    It includes fields such as username, first name, last name, file, location, telephone number, description, working hours, type, email, and creation date.
+    """
     class Meta:
         model = UserProfile
         fields = ['user', 'username', 'first_name', 'last_name', 'file', 'uploaded_at', 'type']
@@ -28,6 +36,11 @@ class CustomerProfileListSerializer(serializers.ModelSerializer):
 
 
 class RegistrationSerializer(serializers.Serializer):
+    """
+    Serializer for user registration. This serializer is used to handle the registration of new users, including validation of
+    email uniqueness, password confirmation, and user type. It includes fields for username, email, password, repeated password, and type.
+    The save method creates a new user and associated user profile based on the provided data, and sets the appropriate permissions for admin users.
+    """
     username = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
     password = serializers.CharField(write_only=True, required=True)
