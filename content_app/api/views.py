@@ -41,22 +41,26 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class OrderCountView(generics.RetrieveAPIView):
-    queryset = Orders.objects.all()
-    serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        business_id = self.kwargs['pk']
-        order_count = Orders.objects.filter(business_id=business_id).count()
+        business_user_id = self.kwargs['pk']
+        if not User.objects.filter(userprofile__id=business_user_id).exists():
+            return Response({"detail": "User not found."}, status=404)
+            
+        order_count = Orders.objects.filter(business_user_id=business_user_id, status='in_progress').count()
         return Response({'order_count': order_count})
 
 
 class CompletedOrderCountView(generics.RetrieveAPIView):
-    queryset = Orders.objects.all()
-    serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        business_id = self.kwargs['pk']
-        completed_order_count = Orders.objects.filter(business_id=business_id, status='completed').count()
+        business_user_id = self.kwargs['pk']
+        if not User.objects.filter(userprofile__id=business_user_id).exists():
+            return Response({"detail": "User not found."}, status=404)
+            
+        completed_order_count = Orders.objects.filter(business_user_id=business_user_id, status='completed').count()
         return Response({'completed_order_count': completed_order_count})
 
 

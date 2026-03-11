@@ -156,7 +156,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'created_at', 
             'updated_at'
         ]
-        read_only_fields = ['title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type', 'status', 'created_at', 'updated_at']
+        read_only_fields = ['title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type', 'created_at', 'updated_at']
 
     def get_customer_user(self, obj):
         return obj.customer_user.user.id if obj.customer_user and obj.customer_user.user else None
