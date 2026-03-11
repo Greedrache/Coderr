@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
+from django.db.models import Avg
 from rest_framework import generics, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from content_app.api.permissions import IsOwnerOrReadOnly
 from content_app.api.serializers import OfferSerializer, OrderSerializer, ReviewSerializer, BaseInfoSerializer, OfferDetailSerializer
 from content_app.models import OfferDetail, BaseInfo
 from content_app.models import Offers, Orders, Reviews
+from users_app.models import UserProfile
 from rest_framework.views import APIView, Response
 
 
@@ -81,6 +83,22 @@ class ReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 #BaseInfoSection
-class BaseInfoView(generics.RetrieveAPIView):
-    queryset = BaseInfo.objects.all()
-    serializer_class = BaseInfoSerializer
+class BaseInfoView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        review_count = Reviews.objects.count()
+        
+        avg_rating = Reviews.objects.aggregate(Avg('rating'))['rating__avg']
+        average_rating = round(avg_rating, 1) if avg_rating is not None else 0.0
+        
+        # Taking 'type' or similar field logic into account for business profiles
+        business_profile_count = UserProfile.objects.filter(type='business').count()
+        offer_count = Offers.objects.count()
+
+        return Response({
+            "review_count": review_count,
+            "average_rating": average_rating,
+            "business_profile_count": business_profile_count,
+            "offer_count": offer_count
+        })
