@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework import generics, permissions
 from content_app.api.permissions import IsOwnerOrReadOnly
 from content_app.api.serializers import OfferSerializer, OrderSerializer, ReviewSerializer, BaseInfoSerializer, OfferDetailSerializer
-from content_app.models import OfferDetail
+from content_app.models import OfferDetail, BaseInfo
 from content_app.models import Offers, Orders
 from rest_framework.views import APIView, Response
 
@@ -35,7 +35,7 @@ class OrderView(generics.CreateAPIView):
     queryset = Orders.objects.all()
 
 
-class OrderDetailView(generics.RetrieveAPIView):
+class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Orders.objects.all()
     serializer_class = OrderSerializer
 
@@ -73,5 +73,5 @@ class ReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 #BaseInfoSection
 class BaseInfoView(generics.RetrieveAPIView):
-    queryset = Orders.objects.all()
+    queryset = BaseInfo.objects.all()
     serializer_class = BaseInfoSerializer

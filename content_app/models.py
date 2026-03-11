@@ -1,8 +1,6 @@
 from django.db import models
 
-# Create your models here.
-
-
+# OFFERS
 class Offers(models.Model):
     business = models.ForeignKey('users_app.UserProfile', on_delete=models.CASCADE, related_name='offers')
     title = models.CharField(max_length=200)
@@ -37,14 +35,34 @@ class OfferDetail(models.Model):
         return f"{self.offer.title} - {self.offer_type.capitalize()} (Revision {self.revision})"
 
 
+
+
+
+
+# ORDERS
 class Orders(models.Model):
-    user = models.ForeignKey('users_app.UserProfile', on_delete=models.CASCADE, related_name='user_orders')
-    business = models.ForeignKey('users_app.UserProfile', on_delete=models.CASCADE, related_name='business_orders')
-    offer = models.ForeignKey('content_app.Offers', on_delete=models.CASCADE)
-    order_date = models.DateTimeField(auto_now_add=True)
+    STATUS_CHOICES = [
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled')
+    ]
+
+    customer_user = models.ForeignKey('users_app.UserProfile', on_delete=models.CASCADE, related_name='customer_orders', null=True)
+    business_user = models.ForeignKey('users_app.UserProfile', on_delete=models.CASCADE, related_name='business_orders', null=True)
+  #  offer_detail = models.ForeignKey(OfferDetail, on_delete=models.CASCADE, related_name='orders', null=True)
+    title = models.CharField(max_length=200, blank=True)
+    revisions = models.IntegerField(default=1)
+    delivery_time_in_days = models.IntegerField(default=0)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    features = models.JSONField(blank=True, null=True)
+    offer_type = models.CharField(max_length=20, blank=True)
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Order by {self.user} for {self.offer} at {self.order_date}"
+        return f"Order {self.id} for {self.title}"
 
 
 class Reviews(models.Model):

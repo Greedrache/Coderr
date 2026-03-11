@@ -135,15 +135,74 @@ class OfferSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    offer_detail_id = serializers.IntegerField(write_only=True)
+    customer_user = serializers.SerializerMethodField(read_only=True)
+    business_user = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Orders
-        fields = ['user_id', 'business_id', 'offer_id']
+        fields = [
+            'id', 
+            'offer_detail_id', 
+            'customer_user', 
+            'business_user', 
+            'title', 
+            'revisions', 
+            'delivery_time_in_days', 
+            'price', 
+            'features', 
+            'offer_type', 
+            'status', 
+            'created_at', 
+            'updated_at'
+        ]
+        read_only_fields = ['title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type', 'status', 'created_at', 'updated_at']
+
+    def get_customer_user(self, obj):
+        return obj.customer_user.user.id if obj.customer_user and obj.customer_user.user else None
+
+    def get_business_user(self, obj):
+        return obj.business_user.user.id if obj.business_user and obj.business_user.user else None
+
+    def create(self, validated_data):
+        offer_detail_id = validated_data.pop('offer_detail_id')
+        try:
+            offer_detail = OfferDetail.objects.get(id=offer_detail_id)
+        except OfferDetail.DoesNotExist:
+            raise serializers.ValidationError({"offer_detail_id": "Offer detail not found."})
+
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and getattr(request.user, 'is_authenticated', False):
+            customer_user = getattr(request.user, 'userprofile', None)
+        else:
+            customer_user = None
+
+        business_user = offer_detail.offer.business
+        
+        delivery_days = 0
+        if offer_detail.delivery_time:
+            digits = "".join(filter(str.isdigit, str(offer_detail.delivery_time)))
+            if digits:
+                delivery_days = int(digits)
+
+        order = Orders.objects.create(
+            customer_user=customer_user,
+            business_user=business_user,
+            title=offer_detail.title,
+            revisions=offer_detail.revision,
+            delivery_time_in_days=delivery_days,
+            price=offer_detail.price,
+            features=offer_detail.features,
+            offer_type=offer_detail.offer_type,
+            status='in_progress',
+        )
+        return order
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reviews
-        fields = ['user_id', 'business_id', 'rating', 'comment']
+        fields = ['id', 'user_id', 'business_id', 'rating', 'comment']
 
 
 class BaseInfoSerializer(serializers.ModelSerializer):
