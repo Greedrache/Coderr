@@ -57,6 +57,10 @@ class OfferSerializer(serializers.ModelSerializer):
         ]
 
     def to_representation(self, instance):
+        """
+        Override the default representation to conditionally include or exclude certain fields based on the request method.
+        For POST requests, specific fields related to pricing, delivery time, and user details are removed from the response to streamline the data returned after creating an offer.
+     """
         representation = super().to_representation(instance)
         request = self.context.get('request')
         
@@ -68,6 +72,10 @@ class OfferSerializer(serializers.ModelSerializer):
         return representation
 
     def create(self, validated_data):
+        """
+        Custom create method to handle the creation of an offer along with its associated offer details. This method processes the nested offer details data, 
+        creates the main offer, and then creates each offer detail while calculating the minimum price and delivery time for the offer.
+        """
         details_data = validated_data.pop('details', [])
         
         request = self.context.get('request') if hasattr(self, 'context') else None
@@ -110,6 +118,10 @@ class OfferSerializer(serializers.ModelSerializer):
         return offer
 
     def update(self, instance, validated_data):
+      """
+      Custom update method to handle the updating of an offer along with its associated offer details. This method processes the nested offer details data,
+      updates the main offer, and then updates or creates each offer detail while recalculating the
+      minimum price and delivery time for the offer."""
       details_data = validated_data.pop('details', None)
 
     # Update Main Offer fields
@@ -134,9 +146,18 @@ class OfferSerializer(serializers.ModelSerializer):
       return instance
 
     def get_user(self, obj):
+        """
+        Method to retrieve the user ID associated with the offer's business.
+        This method checks if the offer has an associated business and returns the user ID of that business. If there is no associated business, it returns None.
+        """
         return obj.business.id if obj.business else None
 
     def get_user_details(self, obj):
+        """
+        Method to retrieve the user details associated with the offer's business. 
+        This method checks if the offer has an associated business and returns a dictionary containing the first name,
+        last name, and username of the business. If there is no associated business, it returns an empty dictionary.
+        """
         if obj.business:
             return {
                 "first_name": obj.business.first_name or "",
@@ -184,6 +205,9 @@ class OrderSerializer(serializers.ModelSerializer):
         return obj.business_user.user.id if obj.business_user and obj.business_user.user else None
 
     def create(self, validated_data):
+        """
+        Custom create method to handle the creation of an order based on the provided offer details. This method retrieves the offer details using the provided offer_detail_id,
+        determines the customer and business users, calculates the delivery time in days, and creates a new order with the relevant information from the offer details."""
         offer_detail_id = validated_data.pop('offer_detail_id')
         try:
             offer_detail = OfferDetail.objects.get(id=offer_detail_id)

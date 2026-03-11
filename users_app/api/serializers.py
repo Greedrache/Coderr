@@ -3,6 +3,9 @@ from users_app.models import UserProfile
 from django.contrib.auth.models import User
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for user profiles. This serializer is used to handle the serialization and deserialization of user profile data, including validation and representation of the user profile fields.
+    The serializer includes fields such as username, first name, last name, file, location, telephone number, description, working hours, type, email, and creation date. The user field is read-only and represents the ID of the associated user."""
 
     user = serializers.ReadOnlyField(source='user.id')
 

@@ -97,6 +97,7 @@ class BusinessProfileList(generics.ListAPIView):
     """
     queryset = UserProfile.objects.filter(type='business')
     serializer_class = BusinessProfileListSerializer
+    pagination_class = None
 
 class CustomerProfileList(generics.ListAPIView):
     """

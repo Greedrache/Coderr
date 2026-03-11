@@ -63,6 +63,9 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class OrderCountView(generics.RetrieveAPIView):
+    """
+    View for retrieving the count of in-progress orders for a specific business user. This view allows users to retrieve the number of orders that are currently in progress for a given business user.
+    The business user is identified by the provided user ID, and the count is calculated based on the orders associated with that business user that have a status of 'in_progress'."""
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -75,6 +78,10 @@ class OrderCountView(generics.RetrieveAPIView):
 
 
 class CompletedOrderCountView(generics.RetrieveAPIView):
+    """
+    View for retrieving the count of completed orders for a specific business user. This view allows users to retrieve the number of orders that have been completed for a given business user.
+    The business user is identified by the provided user ID, and the count is calculated based on the orders associated with that business user that have a status of 'completed'.
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
