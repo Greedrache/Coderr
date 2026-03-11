@@ -8,8 +8,11 @@ from rest_framework.views import APIView, Response
 
 #OffersSection
 class OffersView(generics.ListCreateAPIView):
-    queryset = Offers.objects.all()
+    queryset = Offers.objects.all().order_by('-created_at')
     serializer_class = OfferSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(business=self.request.user.userprofile)
 
 
 class OfferDetailView(generics.RetrieveUpdateDestroyAPIView):
