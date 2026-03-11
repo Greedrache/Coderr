@@ -32,8 +32,6 @@ class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
             return [permissions.IsAuthenticated()]
         return [permissions.AllowAny()]
     
-    def get_object(self):
-        return self.request.user.userprofile
 
 class CustomLoginView(ObtainAuthToken):
     """
