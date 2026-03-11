@@ -12,6 +12,22 @@ class OfferDetailFullSerializer(serializers.ModelSerializer):
     class Meta:
         model = OfferDetail
         fields = ["id", "title", "revisions", "delivery_time_in_days", "price", "features", "offer_type"]
+    
+    def to_representation(self, instance):
+        """
+        Override the default representation to ensure that the delivery_time_in_days field is returned as an integer, even if the original value is a string containing non-numeric characters.
+        This method attempts to extract digits from the delivery_time field and convert it to an integer, returning 0 if no valid digits are found or if any exceptions occur during the process.
+        """
+ 
+        ret = super().to_representation(instance)
+        try:
+            val = ret.get('delivery_time_in_days')
+            if val is not None:
+                digits = "".join(filter(str.isdigit, str(val)))
+                ret['delivery_time_in_days'] = int(digits) if digits else 0
+        except Exception:
+            pass
+        return ret
 
 
     
@@ -27,6 +43,20 @@ class OfferDetailSerializer(serializers.ModelSerializer): #for offerdeails/<id>/
     class Meta:
         model = OfferDetail
         fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
+
+    def to_representation(self, instance):
+        """
+        Override the default representation to ensure that the delivery_time_in_days field is returned as an integer, even if the original value is a string containing non-numeric characters.
+        This method attempts to extract digits from the delivery_time field and convert it to an integer, returning 0 if no valid digits are found or if any exceptions occur during the process."""
+        ret = super().to_representation(instance)
+        try:
+            val = ret.get('delivery_time_in_days')
+            if val is not None:
+                digits = "".join(filter(str.isdigit, str(val)))
+                ret['delivery_time_in_days'] = int(digits) if digits else 0
+        except Exception:
+            pass
+        return ret
 
 
 
