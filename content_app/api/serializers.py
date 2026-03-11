@@ -200,9 +200,17 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    reviewer = serializers.PrimaryKeyRelatedField(read_only=True)
+    
     class Meta:
         model = Reviews
-        fields = ['id', 'user_id', 'business_id', 'rating', 'comment']
+        fields = ['id', 'business_user', 'reviewer', 'rating', 'description', 'created_at', 'updated_at']
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request, 'user') and request.user.is_authenticated:
+            validated_data['reviewer'] = getattr(request.user, 'userprofile', None)
+        return super().create(validated_data)
 
 
 class BaseInfoSerializer(serializers.ModelSerializer):

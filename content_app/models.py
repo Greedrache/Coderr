@@ -66,14 +66,15 @@ class Orders(models.Model):
 
 
 class Reviews(models.Model):
-    user = models.ForeignKey('users_app.UserProfile', on_delete=models.CASCADE)
-    business = models.ForeignKey('users_app.UserProfile', on_delete=models.CASCADE, related_name='business_reviews')
+    reviewer = models.ForeignKey('users_app.UserProfile', on_delete=models.CASCADE, related_name='given_reviews', null=True)
+    business_user = models.ForeignKey('users_app.UserProfile', on_delete=models.CASCADE, related_name='received_reviews', null=True)
     rating = models.IntegerField()
-    comment = models.TextField(blank=True)
+    description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Review by {self.user} for {self.business}: {self.rating} stars"
+        return f"Review by {self.reviewer} for {self.business_user}: {self.rating} stars"
 
 
 

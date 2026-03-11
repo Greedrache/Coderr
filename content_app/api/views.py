@@ -1,10 +1,11 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from rest_framework import generics, permissions
+from rest_framework import generics, permissions, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from content_app.api.permissions import IsOwnerOrReadOnly
 from content_app.api.serializers import OfferSerializer, OrderSerializer, ReviewSerializer, BaseInfoSerializer, OfferDetailSerializer
 from content_app.models import OfferDetail, BaseInfo
-from content_app.models import Offers, Orders
+from content_app.models import Offers, Orders, Reviews
 from rest_framework.views import APIView, Response
 
 
@@ -67,11 +68,15 @@ class CompletedOrderCountView(generics.RetrieveAPIView):
 
 #ReviewSection
 class ReviewsView(generics.ListCreateAPIView):
-    queryset = Orders.objects.all()
+    queryset = Reviews.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['business_user_id', 'reviewer_id']
+    ordering_fields = ['updated_at', 'rating']
 
 class ReviewDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Orders.objects.all()
+    queryset = Reviews.objects.all()
     serializer_class = ReviewSerializer
 
 
