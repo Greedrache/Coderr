@@ -12,6 +12,9 @@ class Offers(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name_plural = "Offers"
+
     def __str__(self):
         return self.title
     
@@ -61,6 +64,9 @@ class Orders(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name_plural = "Orders"
+
     def __str__(self):
         return f"Order {self.id} for {self.title}"
 
@@ -72,6 +78,9 @@ class Reviews(models.Model):
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Reviews"
 
     def __str__(self):
         return f"Review by {self.reviewer} for {self.business_user}: {self.rating} stars"
