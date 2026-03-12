@@ -283,6 +283,31 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reviews
         fields = ['id', 'business_user', 'reviewer', 'rating', 'description', 'created_at', 'updated_at']
+        extra_kwargs = {
+            'business_user': {'required': True, 'allow_null': False},
+            'rating': {'required': True},
+            'description': {'required': True, 'allow_blank': False}
+        }
+
+    def validate(self, data):
+        """
+        Custom validation to ensure that only customers can post reviews and that users cannot review themselves. This method checks the authenticated user's profile to determine if they are a customer and ensures that they are not attempting to review their own business.
+        If the user is not a customer or if they are trying to review themselves, a validation
+        error is raised with an appropriate message."""
+        request = self.context.get('request')
+        if request and request.method == 'POST':
+            user_profile = getattr(request.user, 'userprofile', None)
+            
+            # Check if user is a customer
+            if not user_profile or user_profile.type != 'customer':
+                raise serializers.ValidationError({"detail": "Only customers are allowed to post a review."})
+            
+            # Additional check: You cannot review yourself because your are the business user
+            business_user = data.get('business_user')
+            if business_user == user_profile:
+                raise serializers.ValidationError({"detail": "You cannot review yourself."})
+                
+        return data
 
     def create(self, validated_data):
         request = self.context.get('request')
