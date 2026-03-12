@@ -17,6 +17,7 @@ class OffersView(generics.ListCreateAPIView):
     View for listing and creating offers. This view allows users to retrieve a list of all offers and create new offers.
     The list of offers is ordered by creation date in descending order. When creating a new offer, the business field is automatically set to the authenticated user's profile.
     """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     queryset = Offers.objects.all().order_by('-created_at')
     serializer_class = OfferSerializer
 
@@ -38,6 +39,7 @@ class OfferDetailDetailView(generics.RetrieveAPIView):
     """
     View for retrieving the details of a specific offer detail. This view allows users to retrieve the details of a specific offer detail.
     """
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     queryset = OfferDetail.objects.all()
     serializer_class = OfferDetailSerializer
 

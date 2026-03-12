@@ -105,3 +105,4 @@ class CustomerProfileList(generics.ListAPIView):
     """
     queryset = UserProfile.objects.filter(type='customer')
     serializer_class = CustomerProfileListSerializer
+    pagination_class = None
