@@ -18,10 +18,31 @@ class OffersView(generics.ListCreateAPIView):
     The list of offers is ordered by creation date in descending order. When creating a new offer, the business field is automatically set to the authenticated user's profile.
     """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-    queryset = Offers.objects.all().order_by('-created_at')
     serializer_class = OfferSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'description']
+
+    def get_queryset(self):
+        from django.db.models.functions import Cast
+        from django.db.models import IntegerField
+
+        queryset = Offers.objects.all().order_by('-created_at')
+        max_delivery_time = self.request.query_params.get('max_delivery_time')
+        
+        if max_delivery_time is not None:
+            try:
+                max_time = int(max_delivery_time)
+                queryset = queryset.exclude(
+                    min_delivery_time__isnull=True
+                ).exclude(
+                    min_delivery_time=''
+                ).annotate(
+                    min_delivery_time_int=Cast('min_delivery_time', output_field=IntegerField())
+                ).filter(min_delivery_time_int__lte=max_time)
+            except ValueError:
+                pass
+                
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(business=self.request.user.userprofile)

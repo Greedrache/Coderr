@@ -96,22 +96,24 @@ class OfferSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         request = self.context.get('request')
         
-        if 'details' in representation:
-            short_details = []
-            for detail in instance.details.all():
-                url = f"/api/offerdetails/{detail.id}/"
-                if request:
-                    url = request.build_absolute_uri(url)
-                short_details.append({
-                    "id": detail.id,
-                    "url": url
-                })
-            representation['details'] = short_details
-        
         if request and request.method == 'POST':
-            fields_to_remove = ['min_price', 'min_delivery_time', 'user']
+            # When you Post an offer, you don't need all the details about the offer, so we remove some fields to simplify the response
+            fields_to_remove = ['min_price', 'min_delivery_time', 'user', 'created_at', 'updated_at']
             for field in fields_to_remove:
                 representation.pop(field, None)
+        else:
+            # For GET requests, only include id and url of offer details
+            if 'details' in representation:
+                short_details = []
+                for detail in instance.details.all():
+                    url = f"/api/offerdetails/{detail.id}/"
+                    if request:
+                        url = request.build_absolute_uri(url)
+                    short_details.append({
+                        "id": detail.id,
+                        "url": url
+                    })
+                representation['details'] = short_details
                 
         return representation
 
