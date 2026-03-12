@@ -67,10 +67,11 @@ class OfferSerializer(serializers.ModelSerializer):
     user information, as well as custom create and update methods to handle the nested data appropriately.
     """
     details = OfferDetailFullSerializer(many=True)
-    user_details = serializers.SerializerMethodField()
     min_price = serializers.DecimalField(source='price', max_digits=10, decimal_places=2 , read_only=True)
     min_delivery_time = serializers.CharField(max_length=100, allow_blank=True, allow_null=True, required=False)
     user = serializers.SerializerMethodField()
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
 
     class Meta:
         model = Offers
@@ -80,10 +81,11 @@ class OfferSerializer(serializers.ModelSerializer):
             'title',
             'image',
             'description',
+            'created_at',
+            'updated_at',
             'details',
             'min_price',
             'min_delivery_time',
-            'user_details',
         ]
 
     def to_representation(self, instance):
@@ -94,8 +96,20 @@ class OfferSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         request = self.context.get('request')
         
+        if 'details' in representation:
+            short_details = []
+            for detail in instance.details.all():
+                url = f"/api/offerdetails/{detail.id}/"
+                if request:
+                    url = request.build_absolute_uri(url)
+                short_details.append({
+                    "id": detail.id,
+                    "url": url
+                })
+            representation['details'] = short_details
+        
         if request and request.method == 'POST':
-            fields_to_remove = ['min_price', 'min_delivery_time', 'user_details', 'user']
+            fields_to_remove = ['min_price', 'min_delivery_time', 'user']
             for field in fields_to_remove:
                 representation.pop(field, None)
                 
@@ -181,20 +195,6 @@ class OfferSerializer(serializers.ModelSerializer):
         This method checks if the offer has an associated business and returns the user ID of that business. If there is no associated business, it returns None.
         """
         return obj.business.id if obj.business else None
-
-    def get_user_details(self, obj):
-        """
-        Method to retrieve the user details associated with the offer's business. 
-        This method checks if the offer has an associated business and returns a dictionary containing the first name,
-        last name, and username of the business. If there is no associated business, it returns an empty dictionary.
-        """
-        if obj.business:
-            return {
-                "first_name": obj.business.first_name or "",
-                "last_name": obj.business.last_name or "",
-                "username": obj.business.username or "NotAvailable",
-            }
-        return {}
 
 
 

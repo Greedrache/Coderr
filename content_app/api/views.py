@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from django.db.models import Avg
+from django.db.models import Avg, Q
 from rest_framework import generics, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from content_app.api.permissions import IsOwnerOrReadOnly
+from content_app.api.permissions import IsOwnerOrReadOnly, IsCustomerOrBusinessUser
 from content_app.api.serializers import OfferSerializer, OrderSerializer, ReviewSerializer, BaseInfoSerializer, OfferDetailSerializer
 from content_app.models import OfferDetail, BaseInfo
 from content_app.models import Offers, Orders, Reviews
@@ -46,13 +46,23 @@ class OfferDetailDetailView(generics.RetrieveAPIView):
 
 
 #OrderSection
-class OrderView(generics.CreateAPIView):
+class OrderView(generics.ListCreateAPIView):
     """
-    View for creating a new order. This view allows users to create a new order based on the provided offer details.
+    View for listing and creating new orders. This view allows users to retrieve their orders or create a new order based on the provided offer details.
     The offer details are validated and used to create a new order. The customer user is set to the authenticated user's profile, and the business user is set based on the offer details.
     """
     serializer_class = OrderSerializer
-    queryset = Orders.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            return Orders.objects.none()
+        try:
+            profile = user.userprofile
+            return Orders.objects.filter(Q(business_user=profile) | Q(customer_user=profile)).order_by('-created_at')
+        except UserProfile.DoesNotExist:
+            return Orders.objects.none()
 
 
 class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -60,8 +70,18 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     View for retrieving, updating, and deleting a specific order. This view allows users to retrieve the details of a specific order,
     update the order if they are the customer or business user, and delete the order if they are the customer or business user.
     """
-    queryset = Orders.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated, IsCustomerOrBusinessUser]
+    
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            return Orders.objects.none()
+        try:
+            profile = user.userprofile
+            return Orders.objects.filter(Q(business_user=profile) | Q(customer_user=profile))
+        except UserProfile.DoesNotExist:
+            return Orders.objects.none()
 
 
 class OrderCountView(generics.RetrieveAPIView):
@@ -105,6 +125,7 @@ class ReviewsView(generics.ListCreateAPIView):
     queryset = Reviews.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    pagination_class = None
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['business_user_id', 'reviewer_id']
     ordering_fields = ['updated_at', 'rating']

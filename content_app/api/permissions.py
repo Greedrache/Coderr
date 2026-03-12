@@ -10,3 +10,17 @@ class IsOwnerOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         return obj.business.user == request.user
+
+class IsCustomerOrBusinessUser(permissions.BasePermission):
+    """
+    Custom permission to only allow the customer who placed the order or the business providing it to access it.
+    """
+    def has_object_permission(self, request, view, obj):
+        if not request.user.is_authenticated:
+            return False
+            
+        user_profile = getattr(request.user, 'userprofile', None)
+        if not user_profile:
+            return False
+            
+        return obj.customer_user == user_profile or obj.business_user == user_profile
