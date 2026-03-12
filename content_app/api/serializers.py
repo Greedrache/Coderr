@@ -236,6 +236,15 @@ class OrderSerializer(serializers.ModelSerializer):
     def get_business_user(self, obj):
         return obj.business_user.user.id if obj.business_user and obj.business_user.user else None
 
+    def validate(self, data):
+        request = self.context.get('request')
+        if request and request.method == 'POST':
+            user_profile = getattr(request.user, 'userprofile', None)
+            if not user_profile or user_profile.type != 'customer':
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied({"detail": "Only customers can create orders"})
+        return data
+
     def create(self, validated_data):
         """
         Custom create method to handle the creation of an order based on the provided offer details. This method retrieves the offer details using the provided offer_detail_id,
@@ -296,18 +305,19 @@ class ReviewSerializer(serializers.ModelSerializer):
         Custom validation to ensure that only customers can post reviews and that users cannot review themselves. This method checks the authenticated user's profile to determine if they are a customer and ensures that they are not attempting to review their own business.
         If the user is not a customer or if they are trying to review themselves, a validation
         error is raised with an appropriate message."""
+        from rest_framework.exceptions import PermissionDenied
         request = self.context.get('request')
         if request and request.method == 'POST':
             user_profile = getattr(request.user, 'userprofile', None)
             
             # Check if user is a customer
             if not user_profile or user_profile.type != 'customer':
-                raise serializers.ValidationError({"detail": "Only customers are allowed to post a review."})
+                raise PermissionDenied({"detail": "Only customers are allowed to post a review."})
             
             # Additional check: You cannot review yourself because your are the business user
             business_user = data.get('business_user')
             if business_user == user_profile:
-                raise serializers.ValidationError({"detail": "You cannot review yourself."})
+                raise PermissionDenied({"detail": "You cannot review yourself."})
                 
         return data
 

@@ -20,6 +20,12 @@ class UserProfileList(generics.ListCreateAPIView):
     serializer_class = UserProfileSerializer
 
 
+class IsProfileOwnerOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        return obj.user == request.user
+
 class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     View for retrieving, updating, and deleting a specific user profile. This view allows users to retrieve the details of a specific user profile,
@@ -30,7 +36,7 @@ class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def get_permissions(self):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
-            return [permissions.IsAuthenticated()]
+            return [permissions.IsAuthenticated(), IsProfileOwnerOrReadOnly()]
         return [permissions.IsAuthenticated()]
     
 

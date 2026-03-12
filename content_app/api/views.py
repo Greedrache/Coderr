@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import Avg, Q
 from rest_framework import generics, permissions, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from content_app.api.permissions import IsOwnerOrReadOnly, IsCustomerOrBusinessUser
+from content_app.api.permissions import IsOwnerOrReadOnly, IsCustomerOrBusinessUser, IsBusiness, IsCustomer
 from content_app.api.serializers import OfferSerializer, OrderSerializer, ReviewSerializer, BaseInfoSerializer, OfferDetailSerializer
 from content_app.models import OfferDetail, BaseInfo
 from content_app.models import Offers, Orders, Reviews
@@ -17,7 +17,7 @@ class OffersView(generics.ListCreateAPIView):
     View for listing and creating offers. This view allows users to retrieve a list of all offers and create new offers.
     The list of offers is ordered by creation date in descending order. When creating a new offer, the business field is automatically set to the authenticated user's profile.
     """
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsBusiness]
     serializer_class = OfferSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['title', 'description']
@@ -40,12 +40,18 @@ class OffersView(generics.ListCreateAPIView):
                     min_delivery_time_int=Cast('min_delivery_time', output_field=IntegerField())
                 ).filter(min_delivery_time_int__lte=max_time)
             except ValueError:
-                pass
+                from rest_framework.exceptions import ValidationError
+                raise ValidationError({"max_delivery_time": "Must be an integer."})
                 
         return queryset
 
     def perform_create(self, serializer):
-        serializer.save(business=self.request.user.userprofile)
+        from rest_framework.exceptions import PermissionDenied
+        user_profile = getattr(self.request.user, 'userprofile', None)
+        if not user_profile or user_profile.type != 'business':
+            # Could be asking for 403, but let's throw PermissionDenied
+            raise PermissionDenied({"detail": "Only business profiles can create offers."})
+        serializer.save(business=user_profile)
 
 
 class OfferDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -55,14 +61,14 @@ class OfferDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = Offers.objects.all()
     serializer_class = OfferSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
 
 class OfferDetailDetailView(generics.RetrieveAPIView):
     """
     View for retrieving the details of a specific offer detail. This view allows users to retrieve the details of a specific offer detail.
     """
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = OfferDetail.objects.all()
     serializer_class = OfferDetailSerializer
 
@@ -75,7 +81,7 @@ class OrderView(generics.ListCreateAPIView):
     The offer details are validated and used to create a new order. The customer user is set to the authenticated user's profile, and the business user is set based on the offer details.
     """
     serializer_class = OrderSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsCustomer]
     pagination_class = None
 
     def get_queryset(self):
@@ -148,7 +154,7 @@ class ReviewsView(generics.ListCreateAPIView):
     """
     queryset = Reviews.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated, IsCustomer]
     pagination_class = None
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['business_user_id', 'reviewer_id']

@@ -24,3 +24,27 @@ class IsCustomerOrBusinessUser(permissions.BasePermission):
             return False
             
         return obj.customer_user == user_profile or obj.business_user == user_profile
+
+class IsCustomer(permissions.BasePermission):
+    """
+    Permission to only allow customers to create or perform an action.
+    """
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if not request.user.is_authenticated:
+            return False
+        user_profile = getattr(request.user, 'userprofile', None)
+        return user_profile and user_profile.type == 'customer'
+
+class IsBusiness(permissions.BasePermission):
+    """
+    Permission to only allow business profiles to create or perform an action.
+    """
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if not request.user.is_authenticated:
+            return False
+        user_profile = getattr(request.user, 'userprofile', None)
+        return user_profile and user_profile.type == 'business'
