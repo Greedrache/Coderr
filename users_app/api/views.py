@@ -15,6 +15,7 @@ class UserProfileList(generics.ListCreateAPIView):
     View for listing and creating user profiles. This view allows users to retrieve a list of all user profiles and create new user profiles.
     The list of user profiles is ordered by creation date in descending order. When creating a new user profile, the user field is automatically set to the authenticated user's ID.
     """
+    permission_classes = [permissions.IsAuthenticated]
     queryset = UserProfile.objects.all()
     serializer_class = UserProfileSerializer
 
@@ -30,7 +31,7 @@ class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_permissions(self):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
             return [permissions.IsAuthenticated()]
-        return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
     
 
 class CustomLoginView(ObtainAuthToken):
@@ -95,6 +96,7 @@ class BusinessProfileList(generics.ListAPIView):
     """
     View for listing business profiles. This view allows users to retrieve a list of all business profiles.
     """
+    permission_classes = [permissions.IsAuthenticated]
     queryset = UserProfile.objects.filter(type='business')
     serializer_class = BusinessProfileListSerializer
     pagination_class = None
@@ -103,6 +105,7 @@ class CustomerProfileList(generics.ListAPIView):
     """
     View for listing customer profiles. This view allows users to retrieve a list of all customer profiles.
     """
+    permission_classes = [permissions.IsAuthenticated]
     queryset = UserProfile.objects.filter(type='customer')
     serializer_class = CustomerProfileListSerializer
     pagination_class = None

@@ -20,6 +20,8 @@ class OffersView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     queryset = Offers.objects.all().order_by('-created_at')
     serializer_class = OfferSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'description']
 
     def perform_create(self, serializer):
         serializer.save(business=self.request.user.userprofile)
@@ -53,6 +55,7 @@ class OrderView(generics.ListCreateAPIView):
     """
     serializer_class = OrderSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None
 
     def get_queryset(self):
         user = self.request.user
