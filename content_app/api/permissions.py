@@ -23,7 +23,11 @@ class IsCustomerOrBusinessUser(permissions.BasePermission):
         if not user_profile:
             return False
             
-        return obj.customer_user == user_profile or obj.business_user == user_profile
+        if request.method in permissions.SAFE_METHODS:
+            return obj.customer_user == user_profile or obj.business_user == user_profile
+            
+        # Only the business user is allowed to modify the order (e.g. status)
+        return obj.business_user == user_profile
 
 class IsCustomer(permissions.BasePermission):
     """

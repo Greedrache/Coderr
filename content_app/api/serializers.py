@@ -96,8 +96,8 @@ class OfferSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         request = self.context.get('request')
         
-        if request and request.method == 'POST':
-            # When you Post an offer, you don't need all the details about the offer, so we remove some fields to simplify the response
+        if request and request.method in ['POST', 'PATCH', 'PUT']:
+            # When you Post/Patch an offer, you don't need all the details about the offer, so we remove some fields to simplify the response
             fields_to_remove = ['min_price', 'min_delivery_time', 'user', 'created_at', 'updated_at']
             for field in fields_to_remove:
                 representation.pop(field, None)
@@ -173,22 +173,40 @@ class OfferSerializer(serializers.ModelSerializer):
     # Update Main Offer fields
       for attr, value in validated_data.items():
         setattr(instance, attr, value)
-      instance.save()
+      
 
       if details_data is not None:
         # All existing details delete and new details createn
         instance.details.all().delete()
+        prices = []
+        delivery_times = []
+
         for detail in details_data:
+            price = detail.get('price')
+            delivery = detail.get('delivery_time') 
+            revision = detail.get('revision', 1)
+
+            if price:
+                prices.append(price)
+            if delivery:
+                delivery_times.append(delivery)
+
             OfferDetail.objects.create(
                 offer=instance,
-                title=detail['title'],
-                revision=detail.get('revisions', 1),
-                price=detail.get('price'),
-                delivery_time=detail.get('delivery_time_in_days'),
+                title=detail.get('title', 'Untitled'),
+                revision=revision,
+                price=price,
+                delivery_time=delivery,
                 features=detail.get('features', []),
-                offer_type=detail['offer_type']
+                offer_type=detail.get('offer_type', 'basic')
             )
+            
+        if prices:
+            instance.price = min(prices)
+        if delivery_times:
+            instance.min_delivery_time = min(delivery_times)
 
+      instance.save()
       return instance
 
     def get_user(self, obj):
