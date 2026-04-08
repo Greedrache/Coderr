@@ -1,73 +1,106 @@
-<h1>Coderr Backend</h1>
+# Coderr Backend
 
-<p>
 Coderr is a backend for a freelancer developer platform. This Django project provides a REST API
 to connect frontend and backend, managing all necessary functionalities for users, projects, and tasks.
-</p>
 
-<h2>Features</h2>
-<ul>
-  <li>User registration and login</li>
-  <li>Create and manage freelancer profiles</li>
-  <li>Create, update, and delete projects</li>
-  <li>Assign freelancers to projects</li>
-  <li>RESTful API structure</li>
-</ul>
+---
 
-<h2>Tech Stack</h2>
-<ul>
-  <li>Python 3.14+</li>
-  <li>Django 6.0.3</li>
-  <li>Django REST Framework 3.16.1</li>
-  <li>SQLite (development) / other DBs as needed</li>
-</ul>
+## Features
 
-<h2>Setup (Local Development)</h2>
+- User registration and login
+- Create and manage freelancer profiles
+- Create, update, and delete projects
+- Assign freelancers to projects
+- RESTful API structure
 
-<h3>1. Clone the repository</h3>
-<pre><code>git clone https://github.com/Greedrache/Coderr .</code></pre>
+---
 
-<h3>2. Create a virtual environment</h3>
-<pre><code>python -m venv venv</code></pre>
+## Tech Stack
 
-<h3>3. Activate the virtual environment</h3>
-<p><strong>PowerShell:</strong></p>
-<pre><code>venv\Scripts\Activate.ps1</code></pre>
+- Python 3.14+
+- Django 6.0.3
+- Django REST Framework 3.16.1
+- SQLite (development) / other DBs as needed
 
-<p><strong>cmd:</strong></p>
-<pre><code>venv\Scripts\activate</code></pre>
+---
 
-<p><strong>Linux / Mac:</strong></p>
-<pre><code>source venv/bin/activate</code></pre>
+## Setup (Local Development)
 
-<h3>4. Install dependencies</h3>
-<pre><code>pip install -r requirements.txt</code></pre>
+### 1. Clone the repository
 
-<h3>5. Create migrations</h3>
-<pre><code>python manage.py makemigrations</code></pre>
+```bash
+git clone https://github.com/Greedrache/Coderr .
+```
 
-<h3>6. Apply migrations</h3>
-<pre><code>python manage.py migrate</code></pre>
+### 2. Create a virtual environment
 
-<h3>7. Start the development server</h3>
-<pre><code>python manage.py runserver</code></pre>
+```bash
+python -m venv venv
+```
 
-<p>
-Server runs at:<br>
-http://127.0.0.1:8000/
-</p>
+### 3. Activate the virtual environment
 
-<h2>Optional</h2>
+**PowerShell:**
+```powershell
+venv\Scripts\Activate.ps1
+```
 
-<p><strong>Create a superuser:</strong></p>
-<pre><code>python manage.py createsuperuser</code></pre>
+**cmd:**
+```cmd
+venv\Scripts\activate
+```
 
-<p><strong>Deactivate the virtual environment:</strong></p>
-<pre><code>deactivate</code></pre>
+**Linux / Mac:**
+```bash
+source venv/bin/activate
+```
 
-<h2>Troubleshooting</h2>
-<ul>
-  <li>If you have activation issues in PowerShell: <br>
-  <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code></li>
-  <li>If migrations are missing: run <code>python manage.py migrate</code></li>
-</ul>
+### 4. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 5. Create migrations
+
+```bash
+python manage.py makemigrations
+```
+
+### 6. Apply migrations
+
+```bash
+python manage.py migrate
+```
+
+### 7. Start the development server
+
+```bash
+python manage.py runserver
+```
+
+Server runs at: http://127.0.0.1:8000/
+
+---
+
+## Optional
+
+**Create a superuser:**
+```bash
+python manage.py createsuperuser
+```
+
+**Deactivate the virtual environment:**
+```bash
+deactivate
+```
+
+---
+
+## Troubleshooting
+
+- If you have activation issues in PowerShell:
+  ```powershell
+  Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+  ```
+- If migrations are missing: run `python manage.py migrate`
