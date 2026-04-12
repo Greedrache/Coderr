@@ -266,7 +266,8 @@ class OrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """
         Custom create method to handle the creation of an order based on the provided offer details. This method retrieves the offer details using the provided offer_detail_id,
-        determines the customer and business users, calculates the delivery time in days, and creates a new order with the relevant information from the offer details."""
+        determines the customer and business users, calculates the delivery time in days, and creates a new order with the relevant information from the offer details.
+        """
         offer_detail_id = validated_data.pop('offer_detail_id')
         try:
             offer_detail = OfferDetail.objects.get(id=offer_detail_id)
