@@ -19,17 +19,26 @@ class OffersView(generics.ListCreateAPIView):
     """
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsBusiness]
     serializer_class = OfferSerializer
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['title', 'description']
+    ordering_fields = ['updated_at', 'price']
 
     def get_queryset(self):
         from django.db.models.functions import Cast
         from django.db.models import IntegerField
 
         queryset = Offers.objects.all().order_by('-created_at')
+        
+        creator_id = self.request.query_params.get('creator_id')
+        if creator_id:
+            try:
+                queryset = queryset.filter(business_id=int(creator_id))
+            except ValueError:
+                pass
+                
         max_delivery_time = self.request.query_params.get('max_delivery_time')
         
-        if max_delivery_time is not None:
+        if max_delivery_time:
             try:
                 max_time = int(max_delivery_time)
                 queryset = queryset.exclude(
